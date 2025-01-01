@@ -28,12 +28,16 @@ with app.app_context():
 
 @app.route("/")
 def villains_cards():
-	return render_template("villain.html")
+	return render_template("villain.html", villains=Villain.query.all())
 
 
 @app.route("/add", methods=["GET"])
 def add_villain():
 	return render_template("addvillain.html", errors=[])
+
+@app.route("/delete", methods=["GET"])
+def delete_villain():
+	return render_template("deletevillain.html", errors=[])
 
 @app.route("/addVillain", methods=["POST"])
 def add_user():
@@ -65,4 +69,16 @@ def add_user():
 		db.session.commit()
 		return render_template("villain.html", villains=Villain.query.all())
 
-app.run(host='0.0.0.0', port=8080)
+@app.route("/deleteVillain", methods=["POST"])
+def delete_user():
+	name = request.form.get("name")
+	villain = Villain.query.filter_by(name=name).first()
+	if villain:
+		db.session.delete(villain)
+		db.session.commit()
+		return render_template("villain.html", villains=Villain.query.all())
+	else:
+		return render_template("deletevillain.html",
+		                       errors=["Oops! That villain doesn't exist!"])
+
+app.run(host="0.0.0.0", port=8080)
